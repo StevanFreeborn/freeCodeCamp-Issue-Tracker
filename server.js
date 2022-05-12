@@ -33,8 +33,11 @@ mongoose.connect(
 })
 .catch(err => {
   
-  console.err(err);
+  console.log(err);
 
+  app.use(function (req, res, next) {
+    res.sendFile(process.cwd() + '/views/error.html');
+  });
 
 });
 
