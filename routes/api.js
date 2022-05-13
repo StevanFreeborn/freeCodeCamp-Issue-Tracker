@@ -14,24 +14,22 @@ module.exports = function (app) {
       // check if project already exists
       let project = await Project.findOne({ name: projectName }).exec().catch(err => console.log(err));
 
-      // if project does not already exists create it and save it
-      if (!project) {
+      // if project doesn't exist return an empty array
+      if(!project) return res.status(200).json([]);
 
-        project = new Project({
-          name: projectName
-        });
+      // build filter based on request query
+      const filter = req.query;
 
-        project = await project.save().catch(err => console.log(err));
-
-      }
+      // add projectId to filter
+      filter.projectId = project.id;
 
       // find all issues filtering by the requests query
       // if successful return matching issues
       // if failure return error
-      Issue.find(req.query)
+      Issue.find(filter)
       .then( issues => {
 
-        res.status(200).json(issues);
+        return res.status(200).json(issues);
 
       })
       .catch( err => {
