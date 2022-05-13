@@ -8,6 +8,7 @@ module.exports = function (app) {
 
     .get(async (req, res) => {
 
+      // get project name from path
       let projectName = req.params.project;
 
       // check if project already exists
@@ -24,9 +25,24 @@ module.exports = function (app) {
 
       }
 
+      // find all issues filtering by the requests query
+      // if successful return matching issues
+      // if failure return error
+      Issue.find(req.query)
+      .then( issues => {
 
+        res.status(200).json(issues);
 
-      res.status(200).send('not yet implemented');
+      })
+      .catch( err => {
+
+        console.log(err);
+
+        return res.status(200).json({
+          error: 'Could not get issues'
+        });
+
+      });
 
     })
 
