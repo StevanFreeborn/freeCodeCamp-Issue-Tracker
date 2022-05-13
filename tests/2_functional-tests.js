@@ -45,9 +45,6 @@ suite('Functional Tests', () => {
         .end((err, res) => {
 
             if (err) console.log(err);
-            console.log(res.status);
-            console.log(res.type);
-            console.log(res.text);
             assert.equal(res.status, 200);
             assert.equal(res.type, 'application/json');
 
