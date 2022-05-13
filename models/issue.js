@@ -9,13 +9,13 @@ const issueSchemaOptions = {
 
 const IssueSchema = mongoose.Schema({
 
-    issue: { type: String, required: true },
+    projectId: { type: String, required: true },
+    issue_title: { type: String, required: true },
     issue_text: { type: String, required: true },
     created_by: { type: String, required: true },
-    assigned_to: { type: String, required: true },
+    assigned_to: { type: String },
     open: { type: Boolean, default: true },
-    status_text: { type: String },
-    created_on: { type }
+    status_text: { type: String }
 
 }, issueSchemaOptions);
 
