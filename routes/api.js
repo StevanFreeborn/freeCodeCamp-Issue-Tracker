@@ -65,22 +65,19 @@ module.exports = function (app) {
 
       // check if request has all required fields
       // if it does not respond with error
-      if(!req.body.issue_title || !req.body.issue_text || !req.body.created_by) 
+      if(!req.body.issue_title || !req.body.issue_text || !req.body.created_by) {
+
         return res.status(200).json({
           error: 'required field(s) missing'
          });
-        
+
+      }
+
+      const newIssue = req.body;
+      newIssue.projectId = project.id;
+      
       // create new issue
-      const issue = new Issue({
-
-        projectId: project.id,
-        issue_title: req.body.issue_title,
-        issue_text: req.body.issue_text,
-        created_by: req.body.created_by,
-        assigned_to: req.body.assigned_to,
-        status_text: req.body.status_text
-
-      });
+      const issue = new Issue(newIssue);
 
       // save issue
       // if save successful return newly created issue as json object
@@ -103,11 +100,50 @@ module.exports = function (app) {
 
     })
 
-    .put(function (req, res) {
+    .put(async (req, res) => {
 
-      let project = req.params.project;
+      // get project name from path
+      const projectName = req.params.project;
 
-      res.status(200).send('not yet implemented');
+      // get project
+      let project = await Project.findOne({ name: projectName }).exec().catch(err => console.log(err));
+
+      // if project doesn't exist return error
+      if (!project) return res.status(200).json({
+        error: 'no such project'
+      });
+
+      // if no issue id provided return error
+      if (!req.body._id) return res.status(200).json({
+        error: 'missing _id'
+      });
+
+      // if only issue id sent return error
+      if (Object.keys(req.body).length < 2) return res.status(200).json({
+        error: 'no update field(s) sent',
+        _id: req.body._id
+      });
+      
+      // find issue by id and attempt update
+      Issue.findByIdAndUpdate(req.body._id, req.body, { new: true })
+      .then( issue => {
+
+        return res.status(200).json({
+          result: 'successfully updated',
+          _id: issue._id
+        });
+
+      })
+      .catch( err => {
+
+        console.log(err);
+
+        return res.status(200).json({
+          result: 'could not update',
+          _id: req.body._id
+        });
+
+      });
 
     })
 
