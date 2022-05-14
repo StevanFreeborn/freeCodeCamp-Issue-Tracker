@@ -125,33 +125,49 @@ module.exports = function (app) {
       });
       
       // find issue by id and attempt update
-      Issue.findByIdAndUpdate(req.body._id, req.body, { new: true })
-      .then( issue => {
+      const updatedIssue = await Issue.findByIdAndUpdate(req.body._id, req.body, { new: true });
 
-        return res.status(200).json({
-          result: 'successfully updated',
-          _id: issue._id
-        });
+      if (!updatedIssue) return res.status(200).json({
+        error: 'could not update',
+        _id: req.body._id
+      });
 
-      })
-      .catch( err => {
-
-        console.log(err);
-
-        return res.status(200).json({
-          result: 'could not update',
-          _id: req.body._id
-        });
-
+      return res.status(200).json({
+        result: 'successfully updated',
+        _id: updatedIssue._id
       });
 
     })
 
-    .delete(function (req, res) {
+    .delete(async (req, res) => {
 
-      let project = req.params.project;
+      // get project name from path
+      let projectName = req.params.project;
 
-      res.status(200).send('not yet implemented');
+      // check if project already exists
+      let project = await Project.findOne({ name: projectName }).exec().catch(err => console.log(err));
+
+      // if project doesn't exist return error
+      if (!project) return res.status(200).json({
+        error: 'no such project'
+      });
+
+      // if no issue id provided return error
+      if (!req.body._id) return res.status(200).json({
+        error: 'missing _id'
+      });
+
+      const deletedIssue = await Issue.findByIdAndDelete(req.body._id);
+
+      if (!deletedIssue) return res.status(200).json({
+        error: 'could not delete',
+        _id: req.body._id
+      });
+
+      return res.status(200).json({
+        result: 'successfully deleted',
+        _id: deletedIssue._id
+      });
 
     });
 

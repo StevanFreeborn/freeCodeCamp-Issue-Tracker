@@ -4,6 +4,7 @@ const assert = chai.assert;
 const server = require('../server');
 const Issue = require('../models/issue');
 const { nanoid } = require('nanoid');
+const { expect } = require('chai');
 
 chai.use(chaiHttp);
 
@@ -17,7 +18,6 @@ suite('Functional Tests', () => {
         issue_text: 'This is a test issue',
         created_by: 'Robot',
         assigned_to: 'Stevan',
-        open: true,
         status_text: 'development'
 
     };
@@ -40,13 +40,21 @@ suite('Functional Tests', () => {
         .send(`issue_text=${ issue.issue_text }`)
         .send(`created_by=${ issue.created_by }`)
         .send(`assigned_to=${ issue.assigned_to }`)
-        .send(`open=${ issue.open }`)
         .send(`status_text=${ issue.status_text }`)
         .end((err, res) => {
 
             if (err) console.log(err);
             assert.equal(res.status, 200);
             assert.equal(res.type, 'application/json');
+            assert.property(res.body, 'issue_title');
+            assert.property(res.body, 'issue_text');
+            assert.property(res.body, 'created_by');
+            assert.property(res.body, 'assigned_to');
+            assert.property(res.body, 'status_text');
+            assert.property(res.body, 'projectId');
+            assert.property(res.body, '_id');
+            assert.property(res.body, 'created_on');
+            assert.property(res.body, 'updated_on');
 
             done();
 
@@ -83,7 +91,6 @@ suite('Functional Tests', () => {
         .set('content-type', 'application/x-www-form-urlencoded')
         .type('form')
         .send(`issue_title=${ issue.assigned_to }`)
-        .send(`issue_title=${ issue.open }`)
         .send(`issue_title=${ issue.status_text }`)
         .end((err, res) => {
 
