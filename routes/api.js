@@ -124,14 +124,16 @@ module.exports = function (app) {
         _id: req.body._id
       });
       
-      // find issue by id and attempt update
-      const updatedIssue = await Issue.findByIdAndUpdate(req.body._id, req.body, { new: true });
+      // find issue by id
+      const updatedIssue = await Issue.findByIdAndUpdate(req.body._id, req.body, { new: true }).catch( err => console.log(err));
 
+      // if no issue found and updated return error
       if (!updatedIssue) return res.status(200).json({
         error: 'could not update',
         _id: req.body._id
       });
 
+      // return updated issue
       return res.status(200).json({
         result: 'successfully updated',
         _id: updatedIssue._id
